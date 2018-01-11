@@ -16,7 +16,7 @@ namespace VectorizedMultiLayerPerceptron
                                                 { 0, 1 },
                                                 { 1, 0 },
                                                 { 1, 1 } };
-            Matrix OutputValue = new double[,]{{ 0 },
+            Matrix OutputValue = new double[,]{ { 0 },
                                                 { 1 },
                                                 { 1 },
                                                 { 0 } };
@@ -46,14 +46,13 @@ namespace VectorizedMultiLayerPerceptron
 
                 //BACKPROPAGATION
                 Matrix[] error, delta;
-                BackPropagation(out delta, out error, output, OutputValue, Zlast, W, Z, A, LearningRate, LayerCount);
+                BackPropagation(out delta, out error, output, OutputValue, Zlast, W, Z, A, LayerCount);
+                Matrix LastError = error[LayerCount - 1];
 
-                for (int i = 0; i < W.Length; i++)
-                {
-                    W[i] -= (A[i].T * delta[i + 1]) * LearningRate;
-                }
+                //Gradient Descend
+                GradientDescend(ref W, A, delta, LearningRate);
 
-                Console.WriteLine("Loss: " + error[LayerCount - 1].abs.average * ExampleCount);
+                Console.WriteLine("Loss: " + LastError.abs.average * ExampleCount);
                 if (epoch % 1000 == 0)
                 {
                     Console.WriteLine("-------" + epoch + "----------------");
@@ -64,7 +63,8 @@ namespace VectorizedMultiLayerPerceptron
             }
             Console.Read();
         }
-        static void ForwardPropagation(out Matrix[] Z, out Matrix[] A, Matrix[] W, int ExampleCount, int LayerCount, Matrix InputValue)
+        static void ForwardPropagation(out Matrix[] Z, out Matrix[] A, Matrix[] W,
+                                        int ExampleCount, int LayerCount, Matrix InputValue)
         {
             Z = new Matrix[LayerCount];
             A = new Matrix[LayerCount];
@@ -79,7 +79,7 @@ namespace VectorizedMultiLayerPerceptron
             }
         }
         static void BackPropagation(out Matrix[] delta, out Matrix[] error,Matrix output, Matrix OutputValue,
-                                    Matrix Zlast, Matrix[]W, Matrix[]Z, Matrix[] A,double LearningRate, int LayerCount)
+                                    Matrix Zlast, Matrix[]W, Matrix[]Z, Matrix[] A, int LayerCount)
         {
             error = new Matrix[LayerCount];
             error[LayerCount - 1] = output - OutputValue;
@@ -92,7 +92,10 @@ namespace VectorizedMultiLayerPerceptron
                 delta[i] = error[i] * sigmoid(Z[i], true);
                 delta[i] = delta[i].Slice(0, 1, delta[i].x, delta[i].y);
             }
-
+        }
+        static void GradientDescend(ref Matrix[] W, Matrix[] A,
+                            Matrix[] delta, double LearningRate)
+        {
             for (int i = 0; i < W.Length; i++)
             {
                 W[i] -= (A[i].T * delta[i + 1]) * LearningRate;
