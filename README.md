@@ -15,12 +15,12 @@ Just go to the project and open Program.cs and run it, you can change the datase
 4. Optionaly you can use a Softmax layer to make a clasifier
 
 ## Where can i learn more
-On my Youtube channel (spanish) are a lot of information about Machine learning and Neural networks
-https://www.youtube.com/channel/UCS_iMeH0P0nsIDPvBaJckOw
-You can also look at the previous Example of This 
-https://github.com/HectorPulido/Simple-vectorized-mono-layer-perceptron
-Or Look at a Non Vectorized Example
-https://github.com/HectorPulido/Multi-layer-perceptron
+- On my Youtube channel (spanish) are a lot of information about Machine learning and Neural networks
+- https://www.youtube.com/channel/UCS_iMeH0P0nsIDPvBaJckOw
+- You can also look at the previous Example of This 
+- https://github.com/HectorPulido/Simple-vectorized-mono-layer-perceptron
+- Or Look at a Non Vectorized Example
+- https://github.com/HectorPulido/Multi-layer-perceptron
 
 ## Patreon
 Please consider Support on Patreon
