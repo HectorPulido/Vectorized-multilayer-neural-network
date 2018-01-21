@@ -21,11 +21,11 @@ namespace VectorizedMultiLayerPerceptron
                                                 { 1 },
                                                 { 0 } };
 
-            int[] NeuronCount = new int[] { 2, 2, 2, 1 };
+            int[] NeuronCount = new int[] { 2, 3, 3, 1 };
             int LayerCount = NeuronCount.Length;
             int ExampleCount = OutputValue.x;
 
-            double LearningRate = 0.3;
+            double LearningRate = 0.8;
 
             Random r = new Random(1);
 
@@ -75,8 +75,9 @@ namespace VectorizedMultiLayerPerceptron
             for (int i = 1; i < LayerCount; i++)
             {
                 Z[i] = (A[i - 1] * W[i - 1]).AddColumn(Matrix.Ones(ExampleCount, 1));
-                A[i] = sigmoid(Z[i]);
+                A[i] = sigmoid(Z[i]);//Relu(Z[i]); <- Uncomment if Relu
             }
+            //A[A.Length - 1] = Z[Z.Length - 1]; <- Uncomment if relu OR iregularized Values
         }
         static void BackPropagation(out Matrix[] delta, out Matrix[] error,Matrix output, Matrix OutputValue,
                                     Matrix Zlast, Matrix[]W, Matrix[]Z, Matrix[] A, int LayerCount)
@@ -113,6 +114,22 @@ namespace VectorizedMultiLayerPerceptron
                 else
                 {
                     output[i, j] = 1 / (1 + Math.Exp(-output[i, j]));
+                }
+
+            }, m.x, m.y);
+            return output;
+        }
+        static Matrix Relu(Matrix m, bool derivated = false)
+        {
+            double[,] output = m;
+            Matrix.MatrixLoop((i, j) => {
+                if (derivated)
+                {                    
+                    output[i, j] = output[i, j] > 0 ? 1 : 0;
+                }
+                else
+                {
+                    output[i, j] = output[i, j] > 0 ? output[i, j] : 0;
                 }
 
             }, m.x, m.y);
