@@ -352,5 +352,9 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-# Ignore Archive subdirectory
+# Archive folder
 Archive/
+
+Vectorized-Multilayer-Neural-Network/Simple neural network/bin/
+Vectorized-Multilayer-Neural-Network/Simple neural network/obj/
+Vectorized-Multilayer-Neural-Network/.vs/*
