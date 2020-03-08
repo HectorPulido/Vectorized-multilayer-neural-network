@@ -358,3 +358,7 @@ Archive/
 Vectorized-Multilayer-Neural-Network/Simple neural network/bin/
 Vectorized-Multilayer-Neural-Network/Simple neural network/obj/
 Vectorized-Multilayer-Neural-Network/.vs/*
+*.exe
+Vectorized-Multilayer-Neural-Network/Simple neural network/Simple neural network.exe.config
+Vectorized-Multilayer-Neural-Network/Simple neural network/Simple neural network.vshost.exe.config
+Vectorized-Multilayer-Neural-Network/Simple neural network/Simple neural network.vshost.exe.manifest

@@ -132,11 +132,13 @@ namespace ActivationFunction
         {
             if (gain < 0) return 0;
 
+            double xc = x - center;
             double y;
-            if (x >= 0)
+            if (xc >= 0)
                 y = 1;
             else
-                y = x + gain;
+                //y = x + gain;
+                y = gain + Activation(x, gain, center);
             return y;
         }
 
@@ -149,7 +151,7 @@ namespace ActivationFunction
     /// <summary>
     /// Implements Rectified Linear Unit (ReLU)
     /// </summary>
-    public class ReluFunction : IActivationFunction
+    public class ReLUFunction : IActivationFunction
     {
 
         public double Activation(double x, double gain, double center)
@@ -173,7 +175,7 @@ namespace ActivationFunction
     /// <summary>
     /// Implements Rectified Linear Unit (ReLU) with sigmoid for derivate
     /// </summary>
-    public class ReluSigmoidFunction : IActivationFunction
+    public class ReLUSigmoidFunction : IActivationFunction
     {
 
         public double Activation(double x, double gain, double center)

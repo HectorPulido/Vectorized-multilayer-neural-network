@@ -3,7 +3,7 @@ using System.Text; // StringBuilder
 
 namespace LinearAlgebra
 {
-    struct Matrix
+    public struct Matrix
     {
         double[,] _matrix;
         public double[,] matrix { get { return (double[,])_matrix.Clone(); } set { _matrix = value; } }
@@ -165,7 +165,7 @@ namespace LinearAlgebra
                     if (j < y-1) sb.Append(", ");
                 }
                 sb.Append("}");
-                if (i < x-1) sb.Append("," + "\n");
+                if (i < x-1) sb.Append("," + Environment.NewLine);
             }
             sb.Append("}");
             return sb.ToString();
@@ -433,6 +433,24 @@ namespace LinearAlgebra
                 }
             }
             return c;
+        }
+
+        /// <summary>
+        /// Convert whole Matrix object to array
+        /// </summary>
+        public float[] ToArray()
+        {
+            //float[] array = new float[this._matrix.Length - 1];
+            float[] array = new float[this._matrix.Length] ;
+            int k = 0;
+            for (int i = 0; i<=this.x - 1; i++)
+            {
+                for (int j = 0; j<=this.y - 1; j++)
+                {
+                    array[k++] = Convert.ToSingle(this._matrix[i, j]);
+                }
+            }
+            return array;
         }
     }
 }
