@@ -26,8 +26,8 @@ namespace VectorizedMultiLayerPerceptron
                 {1},
                 {0}};
 
-            //mlp.activFct = new ActivationFunction.SigmoidFunction();
-            //mlp.nbIterations = 10000; // Sigmoid: works
+            mlp.activFct = new ActivationFunction.SigmoidFunction();
+            mlp.nbIterations = 10000; // Sigmoid: works
 
             //mlp.activFct = new ActivationFunction.HyperbolicTangentFunction();
             //mlp.nbIterations = 5000; // Hyperbolic tangent: works
