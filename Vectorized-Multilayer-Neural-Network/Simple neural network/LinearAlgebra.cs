@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Text; // StringBuilder 
 
 namespace LinearAlgebra
 {
-    struct Matrix
+    public struct Matrix
     {
         double[,] _matrix;
         public double[,] matrix { get { return (double[,])_matrix.Clone(); } set { _matrix = value; } }
@@ -138,19 +139,36 @@ namespace LinearAlgebra
         }
         public string ToString(string dec = "0.00")
         {
-            string c = "{";
+
+            //string c = "{";
+            //for (int i = 0; i < x; i++)
+            //{
+            //    c += "{";
+            //    for (int j = 0; j < y; j++)
+            //    {
+            //        c += matrix[i, j].ToString(dec) + ", ";
+            //    }
+            //    c += "},\n";
+            //}
+            //c += "}";
+            //return c;
+
+            var sb = new StringBuilder();
+            sb.AppendLine("{");
             for (int i = 0; i < x; i++)
             {
-                c += "{";
+                sb.Append(" {");
                 for (int j = 0; j < y; j++)
                 {
-                    c += matrix[i, j].ToString(dec) + ", ";
+                    string val = matrix[i, j].ToString(dec).Replace(",", ".");
+                    sb.Append(val);
+                    if (j < y-1) sb.Append(", ");
                 }
-                c += "},\n";
+                sb.Append("}");
+                if (i < x-1) sb.Append("," + Environment.NewLine);
             }
-            c += "}";
-
-            return c;
+            sb.Append("}");
+            return sb.ToString();
         }
         //PREMADES
         public static Matrix Zeros(int x, int y)
@@ -396,6 +414,43 @@ namespace LinearAlgebra
                     e(i, j);
                 }
             }
+        }
+
+        /// <summary>
+        /// Apply a function to each element of the array
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="lambdaFct"></param>
+        /// <returns></returns>
+        public static Matrix Map(Matrix m, Func<double, double> lambdaFct)
+        {
+            Matrix c = new Matrix(m.x, m.y);
+            for (int i = 0; i<m.x; i++)
+            {
+                for (int j = 0; j<m.y; j++)
+                {
+                    c._matrix[i, j] = lambdaFct.Invoke(m._matrix[i, j]);
+                }
+            }
+            return c;
+        }
+
+        /// <summary>
+        /// Convert whole Matrix object to array
+        /// </summary>
+        public float[] ToArray()
+        {
+            //float[] array = new float[this._matrix.Length - 1];
+            float[] array = new float[this._matrix.Length] ;
+            int k = 0;
+            for (int i = 0; i<=this.x - 1; i++)
+            {
+                for (int j = 0; j<=this.y - 1; j++)
+                {
+                    array[k++] = Convert.ToSingle(this._matrix[i, j]);
+                }
+            }
+            return array;
         }
     }
 }

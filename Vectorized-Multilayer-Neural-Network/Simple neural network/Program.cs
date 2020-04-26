@@ -12,129 +12,59 @@ namespace VectorizedMultiLayerPerceptron
     {
         static void Main(string[] args)
         {
-            Matrix InputValue = new double[,] { { 0, 0 },
-                                                { 0, 1 },
-                                                { 1, 0 },
-                                                { 1, 1 } };
-            Matrix OutputValue = new double[,]{ { 0 },
-                                                { 1 },
-                                                { 1 },
-                                                { 0 } };
 
-            int[] NeuronCount = new int[] { 2, 3, 3, 1 };
-            int LayerCount = NeuronCount.Length;
-            int ExampleCount = OutputValue.x;
+            var mlp = new VectorizedMatrixMLP();
 
-            double LearningRate = 0.8;
+            mlp.InputValue = new double[,] {
+                {1, 0},
+                {0, 0},
+                {0, 1},
+                {1, 1}};
+            mlp.TargetValue = new double[,]{ 
+                {1},
+                {0},
+                {1},
+                {0}};
 
-            Random r = new Random(1);
+            mlp.activFct = new ActivationFunction.SigmoidFunction();
+            mlp.nbIterations = 10000; // Sigmoid: works
 
-            Matrix[] W = new Matrix[LayerCount - 1];
-            for (int i = 0; i < W.Length; i++)
-            {
-                W[i] = Matrix.Random(NeuronCount[i] + 1, NeuronCount[i + 1], r) * 2 - 1;
-            }
+            //mlp.activFct = new ActivationFunction.HyperbolicTangentFunction();
+            //mlp.nbIterations = 5000; // Hyperbolic tangent: works
 
-            for (int epoch = 0; epoch < 30001; epoch++)
-            {
-                //FORWARDPROPAGATION
-                Matrix[] Z, A;
-                ForwardPropagation(out Z, out A, W, ExampleCount, LayerCount, InputValue);
+            //mlp.activFct = new ActivationFunction.ELUFunction();
+            //mlp.nbIterations = 1000; // ELU: works fine
+                        
+            //mlp.activFct = new ActivationFunction.GaussianFunction();
+            //mlp.nbIterations = 1000; // Gaussian: works fine
+                        
+            //mlp.activFct = new ActivationFunction.SinusFunction();
+            //mlp.nbIterations = 500; // Sinus: works fine
+                        
+            //mlp.activFct = new ActivationFunction.ArcTangentFunction();
+            //mlp.nbIterations = 1000; // ArcTangent: works fine
+                        
+            //mlp.activFct = new ActivationFunction.ReluFunction();
+            //mlp.nbIterations = 100000; // ReLU: Does not work yet, but this next one yes:
+                        
+            //mlp.activFct = new ActivationFunction.ReLUSigmoidFunction();
+            //mlp.nbIterations = 5000; // ReLUSigmoid: works fine
 
-                Matrix Zlast = Z[LayerCount - 1].Slice(0, 1, Z[LayerCount - 1].x, Z[LayerCount - 1].y);
-                Matrix output = A[A.Length - 1].Slice(0, 1, A[A.Length - 1].x, A[A.Length - 1].y);
+            mlp.lambdaFct = (x) => mlp.activFct.Activation(x, gain: 1, center: 0);
+            mlp.lambdaFctD = (x) => mlp.activFct.Derivative(x, gain: 1, center: 0);
+            mlp.activFctIsNonLinear = mlp.activFct.IsNonLinear();
 
-                //BACKPROPAGATION
-                Matrix[] error, delta;
-                BackPropagation(out delta, out error, output, OutputValue, Zlast, W, Z, A, LayerCount);
-                Matrix LastError = error[LayerCount - 1];
+            //int[] NeuronCount = new int[] { 2, 3, 3, 1 };
+            int[] NeuronCount = new int[] { 2, 2, 1 };
+            mlp.LearningRate = 0.1;
+            mlp.InitStruct(NeuronCount, addBiasColumn: true);
 
-                //Gradient Descend
-                GradientDescend(ref W, A, delta, LearningRate);
+            mlp.Randomize();
 
-                Console.WriteLine("Loss: " + LastError.abs.average * ExampleCount);
-                if (epoch % 1000 == 0)
-                {
-                    Console.WriteLine("-------" + epoch + "----------------");
-                    Console.WriteLine(InputValue);
-                    Console.WriteLine(output);
-                }
-
-            }
+            mlp.Train();
+                        
+            Console.WriteLine("Press a key to quit.");
             Console.Read();
         }
-        static void ForwardPropagation(out Matrix[] Z, out Matrix[] A, Matrix[] W,
-                                        int ExampleCount, int LayerCount, Matrix InputValue)
-        {
-            Z = new Matrix[LayerCount];
-            A = new Matrix[LayerCount];
-
-            Z[0] = InputValue.AddColumn(Matrix.Ones(ExampleCount, 1));
-            A[0] = Z[0];
-
-            for (int i = 1; i < LayerCount; i++)
-            {
-                Z[i] = (A[i - 1] * W[i - 1]).AddColumn(Matrix.Ones(ExampleCount, 1));
-                A[i] = sigmoid(Z[i]);//Relu(Z[i]); <- Uncomment if Relu
-            }
-            //A[A.Length - 1] = Z[Z.Length - 1]; <- Uncomment if relu OR iregularized Values
-        }
-        static void BackPropagation(out Matrix[] delta, out Matrix[] error,Matrix output, Matrix OutputValue,
-                                    Matrix Zlast, Matrix[]W, Matrix[]Z, Matrix[] A, int LayerCount)
-        {
-            error = new Matrix[LayerCount];
-            error[LayerCount - 1] = output - OutputValue;
-            delta = new Matrix[LayerCount];
-            delta[LayerCount - 1] = error[LayerCount - 1] * sigmoid(Zlast, true);
-
-            for (int i = LayerCount - 2; i >= 0; i--)
-            {
-                error[i] = delta[i + 1] * W[i].T;
-                delta[i] = error[i] * sigmoid(Z[i], true);
-                delta[i] = delta[i].Slice(0, 1, delta[i].x, delta[i].y);
-            }
-        }
-        static void GradientDescend(ref Matrix[] W, Matrix[] A,
-                            Matrix[] delta, double LearningRate)
-        {
-            for (int i = 0; i < W.Length; i++)
-            {
-                W[i] -= (A[i].T * delta[i + 1]) * LearningRate;
-            }
-        }
-        static Matrix sigmoid(Matrix m, bool derivated = false)
-        {
-            double[,] output = m;
-            Matrix.MatrixLoop((i, j) => {
-                if (derivated)
-                {
-                    double aux = 1 / (1 + Math.Exp(-output[i, j]));
-                    output[i, j] = aux * (1 - aux);
-                }
-                else
-                {
-                    output[i, j] = 1 / (1 + Math.Exp(-output[i, j]));
-                }
-
-            }, m.x, m.y);
-            return output;
-        }
-        static Matrix Relu(Matrix m, bool derivated = false)
-        {
-            double[,] output = m;
-            Matrix.MatrixLoop((i, j) => {
-                if (derivated)
-                {                    
-                    output[i, j] = output[i, j] > 0 ? 1 : 0;
-                }
-                else
-                {
-                    output[i, j] = output[i, j] > 0 ? output[i, j] : 0;
-                }
-
-            }, m.x, m.y);
-            return output;
-        }
-
     }
 }
