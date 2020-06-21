@@ -35,19 +35,19 @@ namespace LinearAlgebra
         //values
         public void SetValue(int x, int y, double value)
         {
-            if (matrix == null)
+            if (this._matrix == null)
                 throw new ArgumentException("Matrix can not be null");
             _matrix[x, y] = value;
         }
         public double GetValue(int x, int y)
         {
-            if (matrix == null)
+            if (this._matrix == null)
                 throw new ArgumentException("Matrix can not be null");
-            return matrix[x, y];
+            return this._matrix[x, y];
         }
         public Matrix Slice(int x1, int y1, int x2, int y2)
         {
-            if (matrix == null)
+            if (this._matrix == null)
                 throw new ArgumentException("Matrix can not be null");
 
             if (x1 > x2 || y1 > y2 || x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0)
@@ -59,7 +59,7 @@ namespace LinearAlgebra
             {
                 for (int j = y1; j < y2; j++)
                 {
-                    slice[i - x1, j - y1] = matrix[i, j];
+                    slice[i - x1, j - y1] = this._matrix[i, j];
                 }
             }
             return  (slice);
@@ -70,41 +70,41 @@ namespace LinearAlgebra
         }
         public Matrix GetRow(int x)
         {
-            if (matrix == null)
+            if (this._matrix == null)
                 throw new ArgumentException("Matrix can not be null");
 
             double[,] row = new double[1, y];
             for (int j = 0; j < y; j++)
             {
-                row[0, j] = matrix[x, j];
+                row[0, j] = this._matrix[x, j];
             }
             return  (row);
         }
         public Matrix GetColumn(int y)
         {
-            if (matrix == null)
+            if (this._matrix == null)
                 throw new ArgumentException("Matrix can not be null");
 
             double[,] column = new double[x, 1];
             for (int i = 0; i < x; i++)
             {
-                column[i, 0] = matrix[i, y];
+                column[i, 0] = this._matrix[i, y];
             }
             return  (column);
         }
         public Matrix AddColumn(Matrix m2)
         {
-            if (matrix == null)
+            if (this._matrix == null)
                 throw new ArgumentException("Matrix can not be null");
             if (m2.y != 1 || m2.x != x)
                 throw new ArgumentException("Invalid dimensions");
 
             double[,] newMatrix = new double[x, y + 1];
-            double[,] m = matrix;
+            double[,] m = this._matrix;
 
             for (int i = 0; i < x; i++)
             {
-                newMatrix[i, 0] = m2.matrix[i, 0];
+                newMatrix[i, 0] = m2._matrix[i, 0];
             }
             MatrixLoop((i, j) => 
             {
@@ -114,7 +114,7 @@ namespace LinearAlgebra
         }
         public Matrix AddRow(Matrix m2)
         {
-            if (matrix == null)
+            if (this._matrix == null)
                 throw new ArgumentException("Matrix can not be null");
             if (m2.x != 1 || m2.y != y)
                 throw new ArgumentException("Invalid dimensions");
@@ -124,7 +124,7 @@ namespace LinearAlgebra
 
             for (int j = 0; j < y; j++)
             {
-                newMatrix[0, j] = m2.matrix[0, j];
+                newMatrix[0, j] = m2._matrix[0, j];
             }
             MatrixLoop((i, j) =>
             {
@@ -160,7 +160,7 @@ namespace LinearAlgebra
                 sb.Append(" {");
                 for (int j = 0; j < y; j++)
                 {
-                    string val = matrix[i, j].ToString(dec).Replace(",", ".");
+                    string val = this._matrix[i, j].ToString(dec).Replace(",", ".");
                     sb.Append(val);
                     if (j < y-1) sb.Append(", ");
                 }
@@ -212,7 +212,7 @@ namespace LinearAlgebra
         {
             double[,] mT = new double[m.y, m.x];
             MatrixLoop((i, j) => {
-                mT[j, i] = m.matrix[i,j];
+                mT[j, i] = m._matrix[i, j];
             }, m.x, m.y);
             return  (mT);
         }
@@ -316,7 +316,7 @@ namespace LinearAlgebra
             double[,] output = new double[m1.x, m2.y];
             MatrixLoop((i, j) => 
             {
-                output[i, j] = m1.matrix[i, j] * m2.matrix[i, j];
+                output[i, j] = m1._matrix[i, j] * m2._matrix[i, j];
             }, m1.x, m2.y);
             return  (output);
         }
@@ -334,7 +334,7 @@ namespace LinearAlgebra
         {
             double[,] output = new double[m2.x, m2.y];
             MatrixLoop((i, j) => {
-                output[i, j] = Math.Pow(m2.matrix[i, j], m1); 
+                output[i, j] = Math.Pow(m2._matrix[i, j], m1); 
             }, m2.x, m2.y);
             return  (output);
         }
@@ -359,21 +359,21 @@ namespace LinearAlgebra
             {
                 MatrixLoop((i, j) =>
                 {
-                    output[0, 0] += m.matrix[i, j];
+                    output[0, 0] += m._matrix[i, j];
                 }, m.x, m.y);
             }
             else if (dimension == 0)
             {
                 MatrixLoop((i, j) =>
                 {
-                    output[i, 0] += m.matrix[i, j];
+                    output[i, 0] += m._matrix[i, j];
                 }, m.x, m.y);
             }
             else if (dimension == 1)
             {
                 MatrixLoop((i, j) =>
                 {
-                    output[0, j] += m.matrix[i, j];
+                    output[0, j] += m._matrix[i, j];
                 }, m.x, m.y);
             }
             return  (output);
@@ -395,13 +395,13 @@ namespace LinearAlgebra
         public Matrix Abs(Matrix m)
         {
             double[,] d = m;
-            MatrixLoop((i, j) => { d[i, j] = Math.Abs(m.matrix[i, j]); }, m.x, m.y);
+            MatrixLoop((i, j) => { d[i, j] = Math.Abs(m._matrix[i, j]); }, m.x, m.y);
             return  (d);
         }
         public double Average(Matrix m)
         {
             double d = 0;
-            MatrixLoop((i, j) => { d += m.matrix[i, j]; }, m.x, m.y);
+            MatrixLoop((i, j) => { d += m._matrix[i, j]; }, m.x, m.y);
             return d / (m.x * m.y);
         }
         //Handlers
