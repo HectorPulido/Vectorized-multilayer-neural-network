@@ -6,12 +6,12 @@ namespace LinearAlgebra
     public struct Matrix
     {
         double[,] _matrix;
-        public double[,] matrix { get { return (double[,])_matrix.Clone(); } set { _matrix = value; } }
-        public int x { get { return _matrix.GetLength(0); } }
-        public int y { get { return _matrix.GetLength(1); } }
+        public double[,] ToMatrix { get { return (double[,])_matrix.Clone(); } set { _matrix = value; } }
+        public int X { get { return _matrix.GetLength(0); } }
+        public int Y { get { return _matrix.GetLength(1); } }
         public Matrix T { get { return Transpose(this); } }
-        public Matrix size { get { return  (new double[,] { { x , y } } ); } }
-        public Matrix abs { get { return Abs(this); } }
+        public Matrix size { get { return (new double[,] { { X , Y } } ); } }
+        public Matrix abs { get { return Absolute(this); } }
         public double average { get { return Average(this); } }
 
         //constructor
@@ -30,27 +30,27 @@ namespace LinearAlgebra
         }
         public static implicit operator double[,](Matrix matrix)
         {
-            return matrix.matrix;
+            return matrix.ToMatrix;
         }
         //values
         public void SetValue(int x, int y, double value)
         {
-            if (this._matrix == null)
+            if (_matrix == null)
                 throw new ArgumentException("Matrix can not be null");
             _matrix[x, y] = value;
         }
         public double GetValue(int x, int y)
         {
-            if (this._matrix == null)
+            if (_matrix == null)
                 throw new ArgumentException("Matrix can not be null");
-            return this._matrix[x, y];
+            return _matrix[x, y];
         }
         public Matrix Slice(int x1, int y1, int x2, int y2)
         {
-            if (this._matrix == null)
+            if (_matrix == null)
                 throw new ArgumentException("Matrix can not be null");
 
-            if (x1 > x2 || y1 > y2 || x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0)
+            if (x1 >= x2 || y1 >= y2 || x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0)
                 throw new ArgumentException("Dimensions are not valid");
 
             double[,] slice = new double[x2 - x1, y2 - y1];
@@ -59,78 +59,79 @@ namespace LinearAlgebra
             {
                 for (int j = y1; j < y2; j++)
                 {
-                    slice[i - x1, j - y1] = this._matrix[i, j];
+                    slice[i - x1, j - y1] = _matrix[i, j];
                 }
             }
-            return  (slice);
+            return (slice);
         }
         public Matrix Slice(int x, int y)
         {
-            return Slice(0,0,x,y);
+            return Slice(0, 0, x, y);
         }
         public Matrix GetRow(int x)
         {
-            if (this._matrix == null)
+            if (_matrix == null)
                 throw new ArgumentException("Matrix can not be null");
 
-            double[,] row = new double[1, y];
-            for (int j = 0; j < y; j++)
+            double[,] row = new double[1, Y];
+            for (int j = 0; j < Y; j++)
             {
-                row[0, j] = this._matrix[x, j];
+                row[0, j] = _matrix[x, j];
             }
-            return  (row);
+            return (row);
         }
         public Matrix GetColumn(int y)
         {
-            if (this._matrix == null)
+            if (_matrix == null)
                 throw new ArgumentException("Matrix can not be null");
 
-            double[,] column = new double[x, 1];
-            for (int i = 0; i < x; i++)
+            double[,] column = new double[X, 1];
+            for (int i = 0; i < X; i++)
             {
-                column[i, 0] = this._matrix[i, y];
+                column[i, 0] = _matrix[i, y];
             }
-            return  (column);
+            return (column);
         }
         public Matrix AddColumn(Matrix m2)
         {
-            if (this._matrix == null)
+            if (_matrix == null)
                 throw new ArgumentException("Matrix can not be null");
-            if (m2.y != 1 || m2.x != x)
+            if (m2.Y != 1 || m2.X != X)
                 throw new ArgumentException("Invalid dimensions");
 
-            double[,] newMatrix = new double[x, y + 1];
-            double[,] m = this._matrix;
+            double[,] newMatrix = new double[X, Y + 1];
+            double[,] m = _matrix;
 
-            for (int i = 0; i < x; i++)
+            for (int i = 0; i < X; i++)
             {
-                newMatrix[i, 0] = m2._matrix[i, 0];
+                newMatrix[i, 0] = m2.GetValue(i, 0);
             }
-            MatrixLoop((i, j) => 
+            MatrixLoop((i, j) =>
             {
                 newMatrix[i, j + 1] = m[i, j];
-            }, x, y);
-            return  (newMatrix);
+            }, X, Y);
+            return (newMatrix);
         }
         public Matrix AddRow(Matrix m2)
         {
-            if (this._matrix == null)
+            if (_matrix == null)
                 throw new ArgumentException("Matrix can not be null");
-            if (m2.x != 1 || m2.y != y)
+            if (m2.X != 1 || m2.Y != Y)
                 throw new ArgumentException("Invalid dimensions");
 
-            double[,] newMatrix = new double[x + 1, y];
-            double[,] m = matrix;
+            double[,] newMatrix = new double[X + 1, Y];
+            //double[,] m = matrix;
+            double[,] m = _matrix;
 
-            for (int j = 0; j < y; j++)
+            for (int j = 0; j < Y; j++)
             {
-                newMatrix[0, j] = m2._matrix[0, j];
+                newMatrix[0, j] = m2.GetValue(0, j);
             }
             MatrixLoop((i, j) =>
             {
                 newMatrix[i + 1, j] = m[i, j];
-            }, x, y);
-            return  (newMatrix);
+            }, X, Y);
+            return (newMatrix);
         }
         //Overriding
         public override string ToString()
@@ -155,17 +156,17 @@ namespace LinearAlgebra
 
             var sb = new StringBuilder();
             sb.AppendLine("{");
-            for (int i = 0; i < x; i++)
+            for (int i = 0; i < X; i++)
             {
                 sb.Append(" {");
-                for (int j = 0; j < y; j++)
+                for (int j = 0; j < Y; j++)
                 {
-                    string val = this._matrix[i, j].ToString(dec).Replace(",", ".");
+                    string val = _matrix[i, j].ToString(dec).Replace(",", ".");
                     sb.Append(val);
-                    if (j < y-1) sb.Append(", ");
+                    if (j < Y-1) sb.Append(", ");
                 }
                 sb.Append("}");
-                if (i < x-1) sb.Append("," + Environment.NewLine);
+                if (i < X-1) sb.Append("," + Environment.NewLine);
             }
             sb.Append("}");
             return sb.ToString();
@@ -177,7 +178,7 @@ namespace LinearAlgebra
             MatrixLoop((i, j) => {
                 zeros[i, j] = 0;
             }, x, y);
-            return  (zeros);
+            return (zeros);
         }
         public static Matrix Ones(int x, int y)
         {
@@ -185,7 +186,7 @@ namespace LinearAlgebra
             MatrixLoop((i, j) => {
                 ones[i, j] = 1;
             }, x, y);
-            return  (ones);
+            return (ones);
         }
         public static Matrix Identy(int x)
         {
@@ -196,7 +197,7 @@ namespace LinearAlgebra
                 else
                     identy[i, j] = 0;
             }, x, x);
-            return  (identy);
+            return (identy);
         }
         public static Matrix Random(int x, int y, Random r)
         {
@@ -204,17 +205,17 @@ namespace LinearAlgebra
             MatrixLoop((i, j) => {
                 random[i, j] = r.NextDouble();
             }, x, y);
-            return  (random);
+            return (random);
         }
         //Operations
         //Transpose
         public static Matrix Transpose(Matrix m)
         {
-            double[,] mT = new double[m.y, m.x];
+            double[,] mT = new double[m.Y, m.X];
             MatrixLoop((i, j) => {
-                mT[j, i] = m._matrix[i, j];
-            }, m.x, m.y);
-            return  (mT);
+                mT[j, i] = m.GetValue(i, j);
+            }, m.X, m.Y);
+            return (mT);
         }
         //ADDITIONS
         public static Matrix operator +(Matrix m1, Matrix m2)
@@ -228,7 +229,7 @@ namespace LinearAlgebra
         public static Matrix MatdoubleSum(double m1, Matrix m2)
         {
             double[,] a = m2;
-            double[,] b = new double[m2.x, m2.y];
+            double[,] b = new double[m2.X, m2.Y];
 
             MatrixLoop((i, j) => {
 
@@ -236,23 +237,23 @@ namespace LinearAlgebra
 
             }, b.GetLength(0), b.GetLength(1));
 
-            return  (b);
+            return (b);
         }
         public static Matrix MatSum(Matrix m1, Matrix m2, bool neg = false)
         {
-            if (m1.x != m2.x || m1.y != m2.y)
+            if (m1.X != m2.X || m1.Y != m2.Y)
                 throw new ArgumentException("Matrix must have the same dimensions");
 
             double[,] a = m1;
             double[,] b = m2;
-            double[,] c = new double[m1.x,m2.y];
+            double[,] c = new double[m1.X, m2.Y];
             MatrixLoop((i, j) => {
-                if(!neg)
+                if (!neg)
                     c[i, j] = a[i, j] + b[i, j];
                 else
                     c[i, j] = a[i, j] - b[i, j];
             }, c.GetLength(0), c.GetLength(1));
-            return  (c);
+            return (c);
         }
         //SUBSTRACTIONS
         public static Matrix operator -(Matrix m1, Matrix m2)
@@ -270,14 +271,14 @@ namespace LinearAlgebra
         }
         public static Matrix operator *(Matrix m1, Matrix m2)
         {
-            if (m1.x == m2.x && m1.y == m2.y)
-                return DeltaMult(m1,m2);
+            if (m1.X == m2.X && m1.Y == m2.Y)
+                return DeltaMult(m1, m2);
             return MatMult(m1, m2);
         }
         public static Matrix MatdoubleMult(Matrix m2, double m1)
         {
             double[,] a = m2;
-            double[,] b = new double[m2.x, m2.y];
+            double[,] b = new double[m2.X, m2.Y];
 
             MatrixLoop((i, j) => {
 
@@ -285,20 +286,20 @@ namespace LinearAlgebra
 
             }, b.GetLength(0), b.GetLength(1));
 
-            return  (b);
+            return (b);
         }
         public static Matrix MatMult(Matrix m1, Matrix m2)
         {
-            if (m1.y != m2.x)
+            if (m1.Y != m2.X)
                 throw new ArgumentException("Matrix must have compatible dimensions");
-            int n = m1.x;
-            int m = m1.y;
-            int p = m2.y;
+            int n = m1.X;
+            int m = m1.Y;
+            int p = m2.Y;
 
             double[,] a = m1;
             double[,] b = m2;
             double[,] c = new double[n, p];
-            MatrixLoop((i,j) => {
+            MatrixLoop((i, j) => {
                 double sum = 0;
                 for (int k = 0; k < m; k++)
                 {
@@ -307,18 +308,18 @@ namespace LinearAlgebra
                 c[i, j] = sum;
 
             }, n, p);
-            return  (c);
+            return (c);
         }
         public static Matrix DeltaMult(Matrix m1, Matrix m2)
         {
-            if(m1.x != m2.x || m1.y != m2.y)
+            if (m1.X != m2.X || m1.Y != m2.Y)
                 throw new ArgumentException("Matrix must have the same dimensions");
-            double[,] output = new double[m1.x, m2.y];
-            MatrixLoop((i, j) => 
+            double[,] output = new double[m1.X, m2.Y];
+            MatrixLoop((i, j) =>
             {
-                output[i, j] = m1._matrix[i, j] * m2._matrix[i, j];
-            }, m1.x, m2.y);
-            return  (output);
+                output[i, j] = m1.GetValue(i, j) * m2.GetValue(i, j);
+            }, m1.X, m2.Y);
+            return (output);
         }
         //DIVISION
         public static Matrix operator / (Matrix m2, double m1)
@@ -328,57 +329,57 @@ namespace LinearAlgebra
         //POW
         public static Matrix operator ^(Matrix m2, double m1)
         {
-            return Pow(m2,m1);
+            return Pow(m2, m1);
         }
-        public static Matrix Pow (Matrix m2, double m1)
+        public static Matrix Pow(Matrix m2, double m1)
         {
-            double[,] output = new double[m2.x, m2.y];
+            double[,] output = new double[m2.X, m2.Y];
             MatrixLoop((i, j) => {
-                output[i, j] = Math.Pow(m2._matrix[i, j], m1); 
-            }, m2.x, m2.y);
-            return  (output);
+                output[i, j] = Math.Pow(m2.GetValue(i, j), m1);
+            }, m2.X, m2.Y);
+            return (output);
         }
         public Matrix Pow(double m1)
         {
-            return Matrix.Pow(this, m1);
+            return Pow(this, m1);
         }
         //Sumatory 
-        public static Matrix Sumatory(Matrix m, int dimension = -1)
+        public static Matrix Sumatory(Matrix m, AxisZero dimension = AxisZero.none)
         {
             double[,] output;
-            if (dimension == -1)
+            if (dimension == AxisZero.none)
                 output = new double[1, 1];
-            else if (dimension == 0)
-                output = new double[m.x, 1];
-            else if (dimension == 1)
-                output = new double[1, m.y];
+            else if (dimension == AxisZero.horizontal)
+                output = new double[m.X, 1];
+            else if (dimension == AxisZero.vertical)
+                output = new double[1, m.Y];
             else
                 throw new ArgumentException("The dimension must be -1, 0 or 1");
 
-            if (dimension == -1)
+            if (dimension == AxisZero.none)
             {
                 MatrixLoop((i, j) =>
                 {
-                    output[0, 0] += m._matrix[i, j];
-                }, m.x, m.y);
+                    output[0, 0] += m.GetValue(i, j);
+                }, m.X, m.Y);
             }
-            else if (dimension == 0)
+            else if (dimension == AxisZero.horizontal)
             {
                 MatrixLoop((i, j) =>
                 {
-                    output[i, 0] += m._matrix[i, j];
-                }, m.x, m.y);
+                    output[i, 0] += m.GetValue(i, j);
+                }, m.X, m.Y);
             }
-            else if (dimension == 1)
+            else if (dimension == AxisZero.vertical)
             {
                 MatrixLoop((i, j) =>
                 {
-                    output[0, j] += m._matrix[i, j];
-                }, m.x, m.y);
+                    output[0, j] += m.GetValue(i, j);
+                }, m.X, m.Y);
             }
-            return  (output);
+            return (output);
         }
-        public Matrix Sumatory(int dimension = -1)
+        public Matrix Sumatory(AxisZero dimension = AxisZero.none)
         {
             return Sumatory(this, dimension);
         }
@@ -392,17 +393,17 @@ namespace LinearAlgebra
             return m1 * m2.T;
         }
         //ABS
-        public Matrix Abs(Matrix m)
+        public static Matrix Absolute(Matrix m)
         {
             double[,] d = m;
-            MatrixLoop((i, j) => { d[i, j] = Math.Abs(m._matrix[i, j]); }, m.x, m.y);
-            return  (d);
+            MatrixLoop((i, j) => { d[i, j] = Math.Abs(m.GetValue(i, j)); }, m.X, m.Y);
+            return (d);
         }
-        public double Average(Matrix m)
+        public static double Average(Matrix m)
         {
             double d = 0;
-            MatrixLoop((i, j) => { d += m._matrix[i, j]; }, m.x, m.y);
-            return d / (m.x * m.y);
+            MatrixLoop((i, j) => { d += m.GetValue(i, j); }, m.X, m.Y);
+            return d / (m.X * m.Y);
         }
         //Handlers
         public static void MatrixLoop(Action<int, int> e, int x, int y)
@@ -424,10 +425,10 @@ namespace LinearAlgebra
         /// <returns></returns>
         public static Matrix Map(Matrix m, Func<double, double> lambdaFct)
         {
-            Matrix c = new Matrix(m.x, m.y);
-            for (int i = 0; i<m.x; i++)
+            Matrix c = new Matrix(m.X, m.Y);
+            for (int i = 0; i < m.X; i++)
             {
-                for (int j = 0; j<m.y; j++)
+                for (int j = 0; j < m.Y; j++)
                 {
                     c._matrix[i, j] = lambdaFct.Invoke(m._matrix[i, j]);
                 }
@@ -440,14 +441,14 @@ namespace LinearAlgebra
         /// </summary>
         public float[] ToArray()
         {
-            //float[] array = new float[this._matrix.Length - 1];
-            float[] array = new float[this._matrix.Length] ;
+            //float[] array = new float[_matrix.Length - 1];
+            float[] array = new float[_matrix.Length] ;
             int k = 0;
-            for (int i = 0; i<=this.x - 1; i++)
+            for (int i = 0; i<=this.X - 1; i++)
             {
-                for (int j = 0; j<=this.y - 1; j++)
+                for (int j = 0; j<=this.Y - 1; j++)
                 {
-                    array[k++] = Convert.ToSingle(this._matrix[i, j]);
+                    array[k++] = Convert.ToSingle(_matrix[i, j]);
                 }
             }
             return array;

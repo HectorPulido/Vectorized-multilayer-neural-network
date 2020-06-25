@@ -46,7 +46,7 @@ namespace VectorizedMultiLayerPerceptron
                 if (addBiasColumn && i > 0 && i < this.LayerCount - 1)
                     this.NeuronCount[i] += 1; // Bias
             }
-            this.ExampleCount = this.TargetValue.x;
+            this.ExampleCount = this.TargetValue.X;
             this.W = new Matrix[this.LayerCount - 1 - 1 + 1];
         }
 
@@ -80,14 +80,14 @@ namespace VectorizedMultiLayerPerceptron
             var maxIndex = A.Length - 1;
             Matrix Zlast = Z[maxLayer];
             // Cut first column for last layer
-            var zx = Z[maxLayer].x;
-            var zy = Z[maxLayer].y;
+            var zx = Z[maxLayer].X;
+            var zy = Z[maxLayer].Y;
             if (addBiasColumn) Zlast = Zlast.Slice(0, 1, zx, zy);
 
             this.output = A[maxIndex];
             // Cut first column for last index of result matrix
-            var ax = A[maxIndex].x;
-            var ay = A[maxIndex].y;
+            var ax = A[maxIndex].X;
+            var ay = A[maxIndex].Y;
             if (addBiasColumn) this.output = this.output.Slice(0, 1, ax, ay);
 
             this.error = null;
@@ -179,7 +179,7 @@ namespace VectorizedMultiLayerPerceptron
 
                 // Cut first column
                 if (addBiasColumn)
-                    delta[i] = delta[i].Slice(0, 1, delta[i].x, delta[i].y);
+                    delta[i] = delta[i].Slice(0, 1, delta[i].X, delta[i].Y);
             }
         }
 
